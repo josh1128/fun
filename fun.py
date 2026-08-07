@@ -1,5 +1,4 @@
 import streamlit as st
-import random
 
 st.set_page_config(page_title="A Question for You 💕", page_icon="💖", layout="centered")
 
@@ -31,16 +30,33 @@ st.markdown(
             color: #c2255c;
             animation: pop 0.6s ease;
         }
-        .teaser {
+        .title {
             text-align: center;
-            font-size: 2rem;
+            font-size: 2.4rem;
             font-weight: 800;
             color: #d6336c;
             margin-top: 1rem;
         }
-        .compliment {
+        .cat-emoji {
             text-align: center;
-            font-size: 1.4rem;
+            font-size: 4rem;
+            margin-bottom: -0.5rem;
+        }
+        .cat-name {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #c2255c;
+        }
+        .cat-bio {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #a61e4d;
+            min-height: 2.4rem;
+        }
+        .chosen {
+            text-align: center;
+            font-size: 1.6rem;
             font-weight: 700;
             color: #c2255c;
             margin: 1rem 0;
@@ -68,18 +84,23 @@ st.markdown(
 
 # ---------- State ----------
 if "phase" not in st.session_state:
-    st.session_state.phase = "explore"   # "explore" -> "question" -> question answered
+    st.session_state.phase = "choose_cat"   # "choose_cat" -> "question" -> answered
+if "chosen_cat" not in st.session_state:
+    st.session_state.chosen_cat = None
 if "said_yes" not in st.session_state:
     st.session_state.said_yes = False
 if "no_count" not in st.session_state:
     st.session_state.no_count = 0
-if "interactions" not in st.session_state:
-    st.session_state.interactions = 0
-if "compliment" not in st.session_state:
-    st.session_state.compliment = ""
 
-# How many interactions before the question unlocks
-UNLOCK_AT = 5
+# ---------- Cats to choose from ----------
+CATS = [
+    {"emoji": "😺", "name": "Mochi",    "bio": "Soft, sweet, always up for cuddles."},
+    {"emoji": "😻", "name": "Luna",     "bio": "A hopeless romantic with heart eyes."},
+    {"emoji": "😸", "name": "Waffles",  "bio": "Grins all day, chaos all night."},
+    {"emoji": "😽", "name": "Pumpkin",  "bio": "Loves smooches and sunny windows."},
+    {"emoji": "🐱", "name": "Bean",     "bio": "Tiny, curious, and very nosy."},
+    {"emoji": "🐈", "name": "Biscuit",  "bio": "Classy stroller, expert napper."},
+]
 
 # Increasingly desperate labels for the "No" button
 NO_LABELS = [
@@ -94,73 +115,38 @@ NO_LABELS = [
     "No is not an option 😌",
 ]
 
-COMPLIMENTS = [
-    "You have a great smile 😊",
-    "You're wonderfully curious 🔍",
-    "You make pink look good 💕",
-    "You're the best part of my day ☀️",
-    "You're kind of amazing, you know that? ✨",
-    "Talking to you is my favorite thing 💬",
-]
-
-def bump():
-    """Count an interaction toward unlocking the question."""
-    st.session_state.interactions += 1
-
 
 # ---------- UI ----------
 
-# PHASE 1: Explore — the real question stays hidden until you play around a bit
-if st.session_state.phase == "explore":
-    st.markdown('<div class="teaser">Hey you 👀 there might be a little something hidden here...</div>',
+# PHASE 1: Pick a cat — the question stays hidden until a cat is chosen
+if st.session_state.phase == "choose_cat":
+    st.markdown('<div class="title">Pick your favorite cat 🐾</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub">Choose the one that steals your heart... something sweet is waiting 💌</div>',
                 unsafe_allow_html=True)
-    st.markdown('<div class="sub">Play around with the page for a bit to unlock it 💌</div>',
-                unsafe_allow_html=True)
 
-    remaining = max(UNLOCK_AT - st.session_state.interactions, 0)
-    st.progress(min(st.session_state.interactions / UNLOCK_AT, 1.0))
-    if remaining > 0:
-        st.markdown(f'<div class="sub">{remaining} more little thing(s) to try...</div>',
-                    unsafe_allow_html=True)
-
-    if st.session_state.compliment:
-        st.markdown(f'<div class="compliment">{st.session_state.compliment}</div>',
-                    unsafe_allow_html=True)
-
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        if st.button("🎈 Balloons"):
-            bump()
-            st.balloons()
-            st.rerun()
-    with c2:
-        if st.button("❄️ Snow"):
-            bump()
-            st.snow()
-            st.rerun()
-    with c3:
-        if st.button("💬 Compliment"):
-            bump()
-            st.session_state.compliment = random.choice(COMPLIMENTS)
-            st.rerun()
-
-    st.slider("How much are you enjoying this page? 💕", 0, 100, 50, key="enjoy_slider",
-              on_change=bump)
-
-    st.text_input("Type anything you like here 🌸", key="doodle", on_change=bump)
-
-    # Unlock once they've experimented enough
-    if st.session_state.interactions >= UNLOCK_AT:
-        st.markdown('<div class="sub">😍 You unlocked it! Ready?</div>', unsafe_allow_html=True)
-        if st.button("💖 Reveal the question 💖"):
-            st.session_state.phase = "question"
-            st.rerun()
+    # Show cats in rows of 3
+    for row_start in range(0, len(CATS), 3):
+        cols = st.columns(3)
+        for col, cat in zip(cols, CATS[row_start:row_start + 3]):
+            with col:
+                st.markdown(f'<div class="cat-emoji">{cat["emoji"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="cat-name">{cat["name"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="cat-bio">{cat["bio"]}</div>', unsafe_allow_html=True)
+                if st.button(f"Choose {cat['name']} 💕", key=f"cat_{cat['name']}"):
+                    st.session_state.chosen_cat = cat
+                    st.session_state.phase = "question"
+                    st.rerun()
 
 # PHASE 2: Question answered with YES
 elif st.session_state.said_yes:
+    cat = st.session_state.chosen_cat
     st.balloons()
     st.markdown('<div class="win">Yaaay!! 🎉 You just made me the happiest person alive! 💖</div>',
                 unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="sub">And {cat["emoji"]} {cat["name"]} approves of us being official 🥰</div>',
+        unsafe_allow_html=True,
+    )
     st.markdown('<div class="sub">This calls for a celebration 🍰🌹✨</div>', unsafe_allow_html=True)
     st.image(
         "https://media.giphy.com/media/LnQjpWaON8nhr21vNW/giphy.gif",
@@ -170,10 +156,17 @@ elif st.session_state.said_yes:
     if st.button("Aww, ask me again 🥰"):
         st.session_state.said_yes = False
         st.session_state.no_count = 0
+        st.session_state.chosen_cat = None
+        st.session_state.phase = "choose_cat"
         st.rerun()
 
-# PHASE 2: The question itself
+# PHASE 2: The question itself (pops up after a cat is chosen)
 else:
+    cat = st.session_state.chosen_cat
+    st.markdown(
+        f'<div class="chosen">You picked {cat["emoji"]} {cat["name"]}! Great choice 😻</div>',
+        unsafe_allow_html=True,
+    )
     st.markdown('<div class="big-question">Will you be my girlfriend? 💌</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub">Choose wisely... one option is much easier to press 😉</div>',
                 unsafe_allow_html=True)
