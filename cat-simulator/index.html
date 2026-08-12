@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#3a2b4d" />
+  <title>Mochi — a little gallery of us</title>
+  <meta name="description" content="I miss you. Walk with Mochi through a gallery of our memories." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="scene" aria-label="3D cat named Mochi in a gallery of photos"></canvas>
+
+  <!-- Ambient loading veil -->
+  <div id="loader" class="loader">
+    <div class="loader__paw" aria-hidden="true">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <p class="loader__text">hanging up our memories…</p>
+  </div>
+
+  <!-- Opening: I miss you -->
+  <div id="opening" class="veil">
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="openTitle">
+      <p class="card__eyebrow">from Mochi</p>
+      <h1 id="openTitle" class="card__title">I miss you 💛</h1>
+      <p class="card__sub">I turned our favourite moments into a little gallery. Walk with Mochi and visit each one — take your time.</p>
+      <div class="card__actions">
+        <button id="startBtn" class="yes">Walk with Mochi →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Roam HUD -->
+  <div id="hud" class="hud" hidden>
+    <button id="soundBtn" class="icon-btn" aria-pressed="false" aria-label="Turn sound on" title="Sound">
+      <svg class="icon-off" viewBox="0 0 24 24" width="20" height="20"><path d="M4 9v6h4l5 5V4L8 9H4z"/><line x1="16" y1="9" x2="22" y2="15"/><line x1="22" y1="9" x2="16" y2="15"/></svg>
+      <svg class="icon-on" viewBox="0 0 24 24" width="20" height="20"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+    </button>
+
+    <p id="hint" class="whisper">Use the arrows below — or your keyboard — to walk Mochi up to each photo. 🐾</p>
+
+    <button id="openReplyBtn" class="chip">💌 Write back</button>
+
+    <div class="pad" aria-label="Move Mochi">
+      <button class="pad__btn pad__left"  data-dir="left"  aria-label="Turn left">◀</button>
+      <button class="pad__btn pad__fwd"   data-dir="fwd"   aria-label="Walk forward">▲</button>
+      <button class="pad__btn pad__right" data-dir="right" aria-label="Turn right">▶</button>
+      <button class="pad__btn pad__back"  data-dir="back"  aria-label="Walk back">▼</button>
+    </div>
+  </div>
+
+  <!-- Reply modal -->
+  <div id="reply" class="veil" hidden>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="replyTitle">
+      <button id="closeReplyBtn" class="card__close" aria-label="Back to the gallery">✕</button>
+
+      <div id="replyBox" class="reply">
+        <p class="card__eyebrow">write back to Mochi</p>
+        <h2 id="replyTitle" class="reply__h">Say something to me 💛</h2>
+        <textarea id="replyInput" class="reply__input" rows="3" maxlength="500" placeholder="I miss you too…"></textarea>
+        <div class="reply__actions">
+          <button id="sendReplyBtn" class="yes">Send 💌</button>
+        </div>
+      </div>
+
+      <div id="replyDone" class="reply-done" hidden>
+        <p class="reply-done__eyebrow">Mochi will hold onto this 🐾</p>
+        <p id="replyEcho" class="reply-done__echo"></p>
+        <div class="reply-done__actions">
+          <a id="mailReplyBtn" class="yes" hidden>Send it to me 📩</a>
+          <button id="replyAgainBtn" class="ghost">write another</button>
+          <button id="backToGalleryBtn" class="ghost">back to gallery</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
